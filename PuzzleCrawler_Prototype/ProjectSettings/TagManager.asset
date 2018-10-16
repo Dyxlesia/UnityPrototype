@@ -9,6 +9,7 @@ TagManager:
   - ladder
   - floor
   - pit
+  - enemy
   layers:
   - Default
   - TransparentFX

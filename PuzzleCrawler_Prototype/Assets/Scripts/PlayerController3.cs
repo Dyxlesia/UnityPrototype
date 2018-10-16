@@ -396,7 +396,7 @@ public class PlayerController3 : MonoBehaviour {
             //this exists to prevent players from holding down the attack button
             attacking = false;
         }
-        
+
         #endregion
     }
 
@@ -462,6 +462,16 @@ public class PlayerController3 : MonoBehaviour {
         if (other.gameObject.tag == "floor")
         {
             other.gameObject.GetComponent<RoomMovement>().lerpTo = false;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "enemy")
+        {
+            Health.playerHealth--;
+
+
         }
     }
 }
