@@ -7,6 +7,7 @@ public class AI_Squid : MonoBehaviour {
     [SerializeField] GameObject player;
     [SerializeField] Camera cam;            //The main camera
     [SerializeField] GameObject body;
+    [SerializeField] GameObject aggroPoint; //An object that goes to the center of the room whenever the player enters a room
 
     [SerializeField] float dashStrenth;
     [SerializeField] float dashRate;
@@ -17,12 +18,14 @@ public class AI_Squid : MonoBehaviour {
 
     Rigidbody ridbod;
 
+    GameObject startRoom;
+
     float timer;
     float randomNumber;
     float stun;                             //The timer used when the enemy is stuned
 
     bool hit;                               //Is the enemy hit/stunned?
-    //bool aggroed;                           //Has the enemy seen the player? AKA Has the player entered the same room as the enemy?
+    bool aggroed;                           //Has the enemy seen the player? AKA Has the player entered the same room as the enemy?
 
     // Use this for initialization
     void Start ()
@@ -32,20 +35,19 @@ public class AI_Squid : MonoBehaviour {
         randomNumber = 0;
         stun = 0;
         hit = false;
-        //aggroed = false;
+        aggroed = false;
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        /*
-        InCameraVeiw();
+        nearAggroPoint();
 
         if (!aggroed)
         {
             return;
         }
-        */
+        
 
         if (hit)
         {
@@ -195,23 +197,24 @@ public class AI_Squid : MonoBehaviour {
 
             #endregion
         }
-    }
 
-    //Raycasts to see if the enemy is in veiw of the camera. Please don't edit this code. Also, if you disable upper floors, bad things happen. 
-    //This also means the top floor of the dungeon should have higer walls than normal
-    private void InCameraVeiw()
-    {
-        RaycastHit rayhit;
-        Debug.DrawRay(cam.transform.position, gameObject.transform.position - cam.transform.position, Color.yellow);
-
-        Physics.Raycast(cam.transform.position, gameObject.transform.position - cam.transform.position, out rayhit);
-
-        //If the raycast hits the enemy, the player is in the same room as the enemy, and the enemy is aggroed
-        if (rayhit.collider == gameObject.GetComponent<Collider>())
+        if (other.tag == "floor")
         {
-            //aggroed = true;
-            print(rayhit.collider);  //Just some debug code
+            startRoom = other.gameObject;
         }
     }
 
+    //Workaround because raycasts didn't work. If the player moves inside a room, the aggro point moves into that room, aggroing the enemies
+    private void nearAggroPoint()
+    {
+        if (startRoom.transform.position == aggroPoint.transform.position)
+        {
+            float tempY = aggroPoint.transform.position.y - gameObject.transform.position.y;
+
+            if (Mathf.Abs(tempY) < 2)
+            {
+                aggroed = true;
+            }
+        }
+    }
 }

@@ -12,6 +12,7 @@ public class PlayerController3 : MonoBehaviour {
     [SerializeField] GameObject slash;      //The sprite that apears when you attack
     [SerializeField] GameObject stamina;    //The blue/green bar that decreases when you attack
     [SerializeField] GameObject fuel;       //The white bar that decreases when you dash
+    [SerializeField] GameObject aggroPoint;
 
     [SerializeField] float movespeed;       //How fast the player accelerates
     [SerializeField] float movespeedCap;    //The player's maximum speed. Assigned in the region velocityCapCode. Yes, this can cause bugs
@@ -433,6 +434,15 @@ public class PlayerController3 : MonoBehaviour {
         if (other.gameObject.tag == "floor")
         {
             other.gameObject.GetComponent<RoomMovement>().lerpTo = true;
+
+            if (other.gameObject.GetComponent<RoomMovement>().weirdRoom == true)
+            {
+                aggroPoint.transform.position = other.gameObject.transform.position;
+            }
+            else
+            {
+                aggroPoint.transform.position = other.gameObject.transform.position;
+            }
         }
     }
 
