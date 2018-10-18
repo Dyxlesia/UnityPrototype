@@ -37,6 +37,7 @@ public class AI_Crawler : MonoBehaviour {
     {
         //pointTo = 1;
         ridbod = gameObject.GetComponent<Rigidbody>();
+        //ridbod.useGravity = false;
         //timer = 1;
         randomNumber = Random.value;
         stun = 0;
@@ -63,7 +64,7 @@ public class AI_Crawler : MonoBehaviour {
         {
             stun += Time.deltaTime;
 
-            GetComponent<MeshRenderer>().material.color = Color.red;
+            GetComponent<MeshRenderer>().material.color = Color.magenta;
 
             if (stun >= stunTime)
             {

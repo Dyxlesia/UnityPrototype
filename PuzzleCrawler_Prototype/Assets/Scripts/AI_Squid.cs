@@ -23,6 +23,7 @@ public class AI_Squid : MonoBehaviour {
     float timer;
     float randomNumber;
     float stun;                             //The timer used when the enemy is stuned
+    float Yfix;
 
     bool hit;                               //Is the enemy hit/stunned?
     bool aggroed;                           //Has the enemy seen the player? AKA Has the player entered the same room as the enemy?
@@ -30,7 +31,9 @@ public class AI_Squid : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        Yfix = gameObject.transform.position.y;
         ridbod = gameObject.GetComponent<Rigidbody>();
+        ridbod.useGravity = false;
         timer = 1;
         randomNumber = 0;
         stun = 0;
@@ -47,7 +50,8 @@ public class AI_Squid : MonoBehaviour {
         {
             return;
         }
-        
+
+        ridbod.useGravity = true;
 
         if (hit)
         {
@@ -207,6 +211,14 @@ public class AI_Squid : MonoBehaviour {
     //Workaround because raycasts didn't work. If the player moves inside a room, the aggro point moves into that room, aggroing the enemies
     private void nearAggroPoint()
     {
+        if (aggroed && aggroPoint.transform.position.y != startRoom.transform.position.y)
+        {
+            aggroed = false;
+            ridbod.useGravity = false;
+            gameObject.transform.position = new Vector3(gameObject.transform.position.x, Yfix, gameObject.transform.position.z);
+        }
+
+
         if (startRoom.transform.position == aggroPoint.transform.position)
         {
             float tempY = aggroPoint.transform.position.y - gameObject.transform.position.y;

@@ -14,7 +14,7 @@ public class ChangeScene : MonoBehaviour {
         }
         else if (Input.GetKey(KeyCode.LeftShift) & Input.GetKeyDown(KeyCode.Alpha2))
         {
-            SceneManager.LoadScene("Combat_demo");
+           // SceneManager.LoadScene("Combat_demo");
         }
     }
 }

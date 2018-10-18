@@ -19,6 +19,15 @@ public class Health : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            playerHealth = 5;
+            hp5.SetActive(true);
+            hp4.SetActive(true);
+            hp3.SetActive(true);
+            hp2.SetActive(true);
+            hp1.SetActive(true);
+        }
 
         if (playerHealth < 5)
         {
@@ -45,5 +54,7 @@ public class Health : MonoBehaviour {
             hp1.SetActive(false);
             gameObject.SetActive(false);
         }
+
+        
     }
 }

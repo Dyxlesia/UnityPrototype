@@ -10,6 +10,7 @@ TagManager:
   - floor
   - pit
   - enemy
+  - projectile
   layers:
   - Default
   - TransparentFX
@@ -21,8 +22,8 @@ TagManager:
   - 
   - PostProcessing
   - Enemy
-  - 
-  - 
+  - Enemy_Armored
+  - Slash
   - 
   - 
   - 

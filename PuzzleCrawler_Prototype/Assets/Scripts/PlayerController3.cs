@@ -19,6 +19,7 @@ public class PlayerController3 : MonoBehaviour {
     [SerializeField] float slowspeed;       //How fast the player decelerates
     [SerializeField] float jumpVel;         //Velocity applied when jumping. Assigned when entering/exiting ladder hitboxes.
     [SerializeField] float dashStrength;    //The velocity the player imedietly accelerates to for about a frame when dashing
+    [SerializeField] float invincibleTime;  //How long the player is invincible after being hit
 
     [SerializeField] bool dashAtCursor;     //If true, the player will dash at the cursor. If false, the player will dash in the direction held
 
@@ -27,6 +28,7 @@ public class PlayerController3 : MonoBehaviour {
     float slashTimer;                       //A timer used to determine how fast your attacks stay out
     float dropTimer;                        //A timer used to preventyou from falling through the world when pressing space on a pit
     float distToGround;                     //The distance from the center of the player to the floor
+    float damageTimer;
 
     bool onGround;                          //Is the player on the ground?
     bool overPit;                           //Is the player over a pit?
@@ -36,6 +38,7 @@ public class PlayerController3 : MonoBehaviour {
     bool pressingD;                         //Is the player pressing D?
     bool dashing;                           //Is the player dashing or holding down the dash button?
     bool attacking;                         //Is the player attacking or holding down the attack button?
+    bool tookDamage;                        //Did the player just take damage?
 
     // Use this for initialization
     void Start()
@@ -53,6 +56,7 @@ public class PlayerController3 : MonoBehaviour {
         pressingD = false;
         dashing = false;
         attacking = false;
+        tookDamage = false;
         
         //The cursor is now invisible and in locked in the center of the screen
         Cursor.visible = false;
@@ -68,6 +72,29 @@ public class PlayerController3 : MonoBehaviour {
         
         //The velocity is assigned to vel here to make velocity application easier
         vel = gameObject.GetComponent<Rigidbody>().velocity;
+
+        #region tookDamageCode
+        if (tookDamage)
+        {
+            if (gameObject.GetComponent<MeshRenderer>().material.color == Color.blue)
+            {
+                gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
+            }
+            else if (gameObject.GetComponent<MeshRenderer>().material.color == Color.white)
+            {
+                gameObject.GetComponent<MeshRenderer>().material.color = Color.blue;
+            }
+
+            damageTimer += Time.deltaTime;
+
+            if (damageTimer > invincibleTime)
+            {
+                tookDamage = false;
+                damageTimer = 0;
+                gameObject.GetComponent<MeshRenderer>().material.color = Color.blue;
+            }
+        }
+        #endregion
 
         //Modifies the cursor cube's position, then has the player face the cube
         #region faceCursorCode
@@ -444,6 +471,15 @@ public class PlayerController3 : MonoBehaviour {
                 aggroPoint.transform.position = other.gameObject.transform.position;
             }
         }
+
+        if (other.gameObject.tag == "projectile")
+        {
+            if (!tookDamage)
+            {
+                Health.playerHealth--;
+                tookDamage = true;
+            }
+        }
     }
 
     //if you leave a hit box, things return to normal
@@ -469,9 +505,11 @@ public class PlayerController3 : MonoBehaviour {
     {
         if (collision.gameObject.tag == "enemy")
         {
-            Health.playerHealth--;
-
-
+            if (!tookDamage)
+            {
+                Health.playerHealth--;
+                tookDamage = true;
+            }
         }
     }
 }
