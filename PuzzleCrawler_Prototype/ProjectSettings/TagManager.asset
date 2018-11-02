@@ -11,6 +11,11 @@ TagManager:
   - pit
   - enemy
   - projectile
+  - Tech
+  - zap
+  - smashDoor
+  - steam
+  - door
   layers:
   - Default
   - TransparentFX
@@ -24,8 +29,8 @@ TagManager:
   - Enemy
   - Enemy_Armored
   - Slash
-  - 
-  - 
+  - Player
+  - ConnectionCheck
   - 
   - 
   - 
