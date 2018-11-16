@@ -38,7 +38,7 @@ public class AI_Wizard : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        orbstartpos = gameObject.transform.position;
+        orbstartpos = gameObject.transform.position + new Vector3(0, 2, 0);
         startpos = gameObject.transform.position;
         //pointTo = 1;
         ridbod = gameObject.GetComponent<Rigidbody>();
@@ -54,6 +54,10 @@ public class AI_Wizard : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        gameObject.transform.LookAt(player.transform);
+        gameObject.transform.eulerAngles += new Vector3(-gameObject.transform.eulerAngles.x, 90, -gameObject.transform.eulerAngles.z);
+
+
         if (startRoom != null)
         {
             if (startRoom.GetComponent<MeshRenderer>().enabled == false)
@@ -286,7 +290,9 @@ public class AI_Wizard : MonoBehaviour {
     {
         if (other.gameObject.tag == "steam")
         {
-            health -= Time.deltaTime / 4;
+            health -= 1;
+
+            hit = true;
         }
     }
 

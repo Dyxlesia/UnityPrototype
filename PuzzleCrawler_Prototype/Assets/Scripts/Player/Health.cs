@@ -19,6 +19,7 @@ public class Health : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        /*
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             playerHealth = 5;
@@ -27,32 +28,53 @@ public class Health : MonoBehaviour {
             hp3.SetActive(true);
             hp2.SetActive(true);
             hp1.SetActive(true);
-        }
+        }*/
 
-        if (playerHealth < 5)
+        if (playerHealth >= 5)
+        {
+            hp5.SetActive(true);
+            hp4.SetActive(true);
+            hp3.SetActive(true);
+            hp2.SetActive(true);
+            hp1.SetActive(true);
+        }
+        else if (playerHealth == 4)
         {
             hp5.SetActive(false);
+            hp4.SetActive(true);
+            hp3.SetActive(true);
+            hp2.SetActive(true);
+            hp1.SetActive(true);
         }
-
-        if (playerHealth < 4)
+        else if (playerHealth == 3)
         {
+            hp5.SetActive(false);
             hp4.SetActive(false);
+            hp3.SetActive(true);
+            hp2.SetActive(true);
+            hp1.SetActive(true);
         }
-
-        if (playerHealth < 3)
+        else if (playerHealth == 2)
         {
+            hp5.SetActive(false);
+            hp4.SetActive(false);
             hp3.SetActive(false);
+            hp2.SetActive(true);
+            hp1.SetActive(true);
         }
-
-        if (playerHealth < 2)
+        else if (playerHealth == 1)
         {
+            hp5.SetActive(false);
+            hp4.SetActive(false);
+            hp3.SetActive(false);
             hp2.SetActive(false);
+            hp1.SetActive(true);
         }
-
-        if (playerHealth <= 0)
+        else if (playerHealth <= 0)
         {
-            hp1.SetActive(false);
-            gameObject.SetActive(false);
+            //hp1.SetActive(false);
+            //gameObject.SetActive(false);
+            playerHealth = 5;
         }
 
         

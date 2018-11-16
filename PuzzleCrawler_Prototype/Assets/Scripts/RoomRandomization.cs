@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class RoomRandomization : MonoBehaviour
 {
@@ -60,7 +61,7 @@ public class RoomRandomization : MonoBehaviour
         }
         else if (phase == 2)
         {
-            int rand = Mathf.RoundToInt(Random.Range(-0.51f, vector3s.Length - 0.5f));
+            int rand = Mathf.RoundToInt(Random.Range(-0.51f, vector3s.Length - 1));
 
             if (vector3s[rand] != null)
             {
@@ -68,7 +69,7 @@ public class RoomRandomization : MonoBehaviour
 
                 Vector3 posToRemove = vector3s[rand];
                 vector3s = vector3s.Where(val => val != posToRemove).ToArray();
-                smallroomCounter++;             
+                smallroomCounter++;
             }
 
             if (smallroomCounter == numberOfSmallRooms)
@@ -128,19 +129,77 @@ public class RoomRandomization : MonoBehaviour
             {
                 phase++;
             }
-            
+
+        }
+        else if (phase == 4)
+        {
+            Smallroom.tag = "Untagged";
+
+            //Get all small rooms
+            GameObject[] outerRoomList = GameObject.FindGameObjectsWithTag("floor");
+
+            //print("outerRoomList.Length: " + outerRoomList.Length);
+
+            for (int i = 0; i < outerRoomList.Length; i++)
+            {
+                GameObject room = outerRoomList[i];
+
+                //if the room is in the inner ring
+                if ((room.transform.position.x < 119 || room.transform.position.x > 1) || (room.transform.position.z < 119 || room.transform.position.z > 1))
+                {
+                    //print("removed room");
+                    //remove it from the list
+                    outerRoomList = outerRoomList.Where(val => val != room).ToArray();
+                    //i = 0;
+                }
+            }
+
+            //print("outerRoomList.Length: (cut) " + outerRoomList.Length);
+
+            GameObject exit = outerRoomList[Random.Range(0, outerRoomList.Length)];
+            //exit.GetComponent<MeshRenderer>().material.color = Color.red;
+
+
+            //print("exit position:" + exit.transform.position);
+
+            GameObject entrance = null;
+
+            for (int i = 0; i < outerRoomList.Length; i++)
+            {
+                //print("outerRoomList[i].pos " + outerRoomList[i].transform.position);
+
+                if (Mathf.Abs(outerRoomList[i].transform.position.x - exit.transform.position.x) > 119)
+                {
+                    entrance = outerRoomList[i];
+                }
+                else if (Mathf.Abs(outerRoomList[i].transform.position.z - exit.transform.position.z) > 119)
+                {
+                    entrance = outerRoomList[i];
+                }
+            }
+
+            if (entrance != null)
+            {
+                exit.GetComponent<MeshRenderer>().material.color = Color.red;
+                entrance.GetComponent<MeshRenderer>().material.color = Color.green;
+
+                phase++;
+            }
+            else if (entrance == null)
+            {
+                SceneManager.LoadScene("RoomNodes");
+            }
         }
         else if (phase == 5)
         {
-            GameObject[] outerRoomList = GameObject.FindGameObjectsWithTag("floor");
+            
+            GameObject[] RoomList = GameObject.FindGameObjectsWithTag("floor");
 
-            foreach (GameObject room in outerRoomList)
+            foreach (GameObject room in RoomList)
             {
-                //if (room)
 
-                //Vector3 posToRemove = vector3s[rand];
-                //vector3s = vector3s.Where(val => val != posToRemove).ToArray();
             }
+            
 
         }
     }

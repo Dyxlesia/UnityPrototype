@@ -6,10 +6,14 @@ public class ActivateTech : MonoBehaviour {
 
     [SerializeField] GameObject player;
     [SerializeField] string toolType;
+    [SerializeField] GameObject sign;
+
+    float timer;
 
     // Use this for initialization
-    void Start () {
-		
+    void Start ()
+    {
+        timer = 0;
 	}
 	
 	// Update is called once per frame
@@ -19,8 +23,24 @@ public class ActivateTech : MonoBehaviour {
         {
             if (Input.GetKey(KeyCode.Q) && toolType == PlayerController3.equipedTool)
             {
-                gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
+                sign.GetComponent<PressQSign>().gettingFixed = true;
+
+                timer += Time.deltaTime;
+
+                if (timer > 3)
+                {
+                    gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
+                }
             }
+            else
+            {
+                sign.GetComponent<PressQSign>().gettingFixed = false;
+            }
+
         }
-	}
+        else
+        {
+            sign.GetComponent<PressQSign>().gettingFixed = false;
+        }
+    }
 }

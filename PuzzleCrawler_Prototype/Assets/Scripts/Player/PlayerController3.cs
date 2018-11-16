@@ -212,21 +212,21 @@ public class PlayerController3 : MonoBehaviour {
         //if you are moving diagonal, lower the movespeed cap to make diagonal movement more accurate
         if ((pressingW && pressingA) || (pressingW && pressingD) || (pressingS && pressingA) || (pressingS && pressingD))
         {
-            movespeedCap = 6;
+            movespeedCap = 6.6f;
         }
         else
         {
-            movespeedCap = 8;
+            movespeedCap = 10;
         }
         
         //Movement speed cap Z
         if (vel.z > movespeedCap)
         {
-            vel.z -= slowspeed;
+            vel.z -= movespeed;
         }
         else if (vel.z < -movespeedCap)
         {
-            vel.z += slowspeed;
+            vel.z += movespeed;
         }
 
         //Movement speed cap X
@@ -390,11 +390,41 @@ public class PlayerController3 : MonoBehaviour {
             //deal extra damage if your stamina bar is full
             if (stamina.GetComponent<SpriteRenderer>().color == Color.blue)
             {
+                slash.GetComponent<SpriteRenderer>().color = Color.cyan;
                 slashDamage = 2;
+
+                if (equipedTool == "wrench")
+                {
+                    slash.transform.localScale = new Vector3(1.9f, 3f, 1.9f);
+                }
+                else if (equipedTool == "screwdriver")
+                {
+                    slash.transform.localScale = new Vector3(1.7f, 3.2f, 1.7f);
+                }
+                else if (equipedTool == "hammer")
+                {
+                    slash.transform.localScale = new Vector3(6, 6, 6);
+                    slashDamage = 1.5f;
+                }
             }
             else
             {
+                slash.GetComponent<SpriteRenderer>().color = Color.white;
                 slashDamage = 1;
+
+                if (equipedTool == "wrench")
+                {
+                    slash.transform.localScale = new Vector3(1.5f, 2.5f, 1.5f);
+                }
+                else if (equipedTool == "screwdriver")
+                {
+                    slash.transform.localScale = new Vector3(1.5f, 2.2f, 1.5f);
+                }
+                else if (equipedTool == "hammer")
+                {
+                    slash.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                    slashDamage = 0.5f;
+                }
             }
 
             //decrease stamina bar
@@ -412,8 +442,23 @@ public class PlayerController3 : MonoBehaviour {
             //increase the timer
             slashTimer += Time.deltaTime;
 
+            float attacktime = 0;
+
+            if (equipedTool == "wrench")
+            {
+                attacktime = 0.3f;
+            }
+            else if (equipedTool == "screwdriver")
+            {
+                attacktime = 0.2f;
+            }
+            else if (equipedTool == "hammer")
+            {
+                attacktime = 0.3f;
+            }
+
             //after the attack has been out for an amount of time, make it diseapear and reset the timer
-            if (slashTimer >= 0.3f)
+            if (slashTimer >= attacktime)
             {
                 slash.GetComponent<SpriteRenderer>().enabled = false;
                 slash.GetComponent<BoxCollider>().enabled = false;
@@ -472,6 +517,25 @@ public class PlayerController3 : MonoBehaviour {
             else
             {
                 aggroPoint.transform.position = other.gameObject.transform.position;
+            }
+        }
+
+        if (other.tag == "item")
+        {
+            if (other.GetComponent<ItemData>().item == "health")
+            {
+                Health.playerHealth = 5;
+            }
+            else
+            {
+                equipedTool = other.GetComponent<ItemData>().item;
+                print(equipedTool);
+                slash.GetComponent<SpriteRenderer>().sprite = other.GetComponent<ItemData>().sprite;
+                slash.GetComponent<Transform>().localScale = other.GetComponent<ItemData>().scale;
+                slash.GetComponent<Transform>().localPosition = other.GetComponent<ItemData>().pos;
+                slash.GetComponent<Transform>().localEulerAngles = other.GetComponent<ItemData>().rot;
+                slash.GetComponent<BoxCollider>().center = other.GetComponent<ItemData>().colPos;
+                slash.GetComponent<BoxCollider>().size = other.GetComponent<ItemData>().colScale;
             }
         }
 

@@ -75,7 +75,7 @@ public class TechDoor : MonoBehaviour {
 
                 Color col = GetComponent<MeshRenderer>().material.color;
 
-                col = Color.Lerp(col, Color.red, timer * 0.2f);
+                col = Color.Lerp(col, Color.red, timer * 0.1f);
 
                 GetComponent<MeshRenderer>().material.color = col;
             }

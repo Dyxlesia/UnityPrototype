@@ -228,7 +228,9 @@ public class AI_Squid : MonoBehaviour {
     {
         if (other.gameObject.tag == "steam")
         {
-            health -= Time.deltaTime / 4;
+            health -= 0.5f;
+
+            body.GetComponent<Renderer>().material.color = Color.magenta;
         }
     }
 

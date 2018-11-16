@@ -236,9 +236,12 @@ public class AI_Charger : MonoBehaviour
 
     private void OnParticleCollision(GameObject other)
     {
-        if (other.gameObject.tag == "steam")
+        if (other.gameObject.tag == "steam" && gameObject.tag == "enemy") // Doesn't work?
         {
-            health -= Time.deltaTime / 4;
+            health -= 0.5f;
+
+            GetComponent<MeshRenderer>().material.color = Color.magenta;
+            hit = true;
         }
     }
 

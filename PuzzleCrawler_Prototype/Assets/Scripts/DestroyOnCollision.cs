@@ -14,10 +14,10 @@ public class DestroyOnCollision : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        foreach (GameObject door in GameObject.FindGameObjectsWithTag("door"))
-        {
+        //foreach (GameObject door in GameObject.FindGameObjectsWithTag("door"))
+        //{
             
-        }
+        //}
 	}
 
     private void OnCollisionStay(Collision collision)

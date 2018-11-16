@@ -263,7 +263,9 @@ public class AI_Crawler : MonoBehaviour {
     {
         if (other.gameObject.tag == "steam")
         {
-            health -= Time.deltaTime / 4;
+            health -= 0.5f;
+
+            GetComponent<MeshRenderer>().material.color = Color.magenta;
         }
     }
 
