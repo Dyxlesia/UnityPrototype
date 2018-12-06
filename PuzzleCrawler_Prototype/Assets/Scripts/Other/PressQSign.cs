@@ -27,6 +27,11 @@ public class PressQSign : MonoBehaviour {
     {
         if (gettingFixed)
         {
+            if (!GetComponent<AudioSource>().isPlaying)
+            {
+                GetComponent<AudioSource>().Play();
+            }
+
             GetComponent<SpriteRenderer>().sprite = empty;
 
             if (fillBox.transform.localScale.x < 1)

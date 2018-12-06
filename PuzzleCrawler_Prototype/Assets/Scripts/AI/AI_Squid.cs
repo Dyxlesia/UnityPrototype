@@ -16,6 +16,13 @@ public class AI_Squid : MonoBehaviour {
     [SerializeField] float knockback;       //The distance the enemy fets knocked back when you hit it
     [SerializeField] float stunTime;        //The time the enemy is stunned for
 
+    [SerializeField] AudioSource asDash;
+    [SerializeField] AudioSource asSquid;
+    [SerializeField] AudioClip hit1;
+    [SerializeField] AudioClip hit2;
+    [SerializeField] AudioClip hit3;
+    [SerializeField] AudioClip death;
+
     Rigidbody ridbod;
 
     GameObject startRoom;
@@ -100,13 +107,26 @@ public class AI_Squid : MonoBehaviour {
                     body.GetComponent<Renderer>().material.color = Color.white;
                 }
 
+                asDash.volume = ((aggroPoint.GetComponent<AudioSource>().volume * 1.42f) * 0.3f);
+
+                if (Vector3.Distance(aggroPoint.transform.position, gameObject.transform.position) < 20)
+                {
+                    asDash.Play();
+                }
+
+
                 timer = 0;
             }
         }
 
         if (health <= 0)
         {
-            gameObject.SetActive(false);
+            gameObject.transform.position -= new Vector3(0, 50, 0);
+
+            if (!asSquid.isPlaying)
+            {
+                gameObject.SetActive(false);
+            }
         }
 	}
 
@@ -117,6 +137,33 @@ public class AI_Squid : MonoBehaviour {
         {
             //The enemy loses health
             health -= PlayerController3.slashDamage;
+
+            if (health > 0)
+            {
+                float rand = Random.value;
+
+                if (rand < 0.33f)
+                {
+                    asSquid.clip = hit1;
+                    asSquid.Play();
+                }
+                else if (rand > 0.66f)
+                {
+                    asSquid.clip = hit2;
+                    asSquid.Play();
+                }
+                else
+                {
+                    asSquid.clip = hit3;
+                    asSquid.Play();
+                }
+            }
+            else
+            {
+                asSquid.clip = death;
+                asSquid.Play();
+            }
+
 
             //The stun timer is set to start at 0, and the enemy is maked as hit
             stun = 0;
@@ -219,7 +266,7 @@ public class AI_Squid : MonoBehaviour {
         {
             if (other.GetComponent<ParticleSystem>().emission.enabled)
             {
-                health -= Time.deltaTime / 4;
+                health -= Time.deltaTime / 2;
             }
         }
     }

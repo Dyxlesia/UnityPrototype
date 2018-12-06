@@ -8,6 +8,13 @@ public class TechDoor : MonoBehaviour {
     [SerializeField] float riseSpeed;
     [SerializeField] float smashSpeed;
 
+    [SerializeField] AudioClip open;
+    [SerializeField] AudioClip slowOpen;
+    [SerializeField] AudioClip slam;
+
+
+    AudioSource audioSource;
+
     float timer;
     bool powered;
     bool moveUp;
@@ -19,6 +26,8 @@ public class TechDoor : MonoBehaviour {
         powered = false;
         moveUp = false;
         moveDown = true;
+
+        audioSource = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -34,6 +43,11 @@ public class TechDoor : MonoBehaviour {
 
             if (moveDown)
             {
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.Play();
+                }
+
                 gameObject.GetComponent<BoxCollider>().isTrigger = true;
                 gameObject.transform.position = new Vector3(gameObject.transform.position.x, Mathf.Lerp(gameObject.transform.position.y, 2.5f, smashSpeed), gameObject.transform.position.z);
 

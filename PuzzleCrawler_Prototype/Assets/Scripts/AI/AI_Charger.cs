@@ -18,6 +18,16 @@ public class AI_Charger : MonoBehaviour
     [SerializeField] float stunTime;        //The time the enemy is stunned for
     [SerializeField] float turnSpeed;
 
+    [SerializeField] AudioSource asAttack;
+    [SerializeField] AudioSource asCharger;
+    [SerializeField] AudioClip grunt;
+    [SerializeField] AudioClip charge;
+    [SerializeField] AudioClip hit1;
+    [SerializeField] AudioClip hit2;
+    [SerializeField] AudioClip hit3;
+    [SerializeField] AudioClip death;
+
+
     Rigidbody ridbod;
 
     GameObject startRoom;
@@ -82,6 +92,17 @@ public class AI_Charger : MonoBehaviour
 
             if (timer >= 2.5)
             {
+                if (asAttack.clip != grunt && asAttack.clip != charge)
+                {
+                    asAttack.clip = grunt;
+                    asAttack.volume = (aggroPoint.GetComponent<AudioSource>().volume * 1.42f) * 0.5f;
+
+                    if (Vector3.Distance(aggroPoint.transform.position, gameObject.transform.position) < 20)
+                    {
+                        asAttack.Play();
+                    }
+                }
+
                 GetComponent<MeshRenderer>().material.color = Color.red;
                 leftArm.GetComponent<MeshRenderer>().material.color = Color.red;
                 rightArm.GetComponent<MeshRenderer>().material.color = Color.red;
@@ -89,6 +110,18 @@ public class AI_Charger : MonoBehaviour
 
             if (timer >= 3)
             {
+                if (asAttack.clip != charge)
+                {
+                    asAttack.clip = charge;
+                    asAttack.volume = (aggroPoint.GetComponent<AudioSource>().volume * 1.42f) * 0.5f;
+
+                    if (Vector3.Distance(aggroPoint.transform.position, gameObject.transform.position) < 20)
+                    {
+                        asAttack.Play();
+                    }
+                    
+                }
+
                 float tempMoveSpeed = movespeed - (timer * timer);
 
                 if (tempMoveSpeed < 0)
@@ -104,6 +137,7 @@ public class AI_Charger : MonoBehaviour
 
             if (timer >= 6)
             {
+                asAttack.clip = null;
                 ridbod.velocity = new Vector3(0, 0, 0);
                 timer = 0;
                 GetComponent<MeshRenderer>().material.color = Color.white;
@@ -115,7 +149,12 @@ public class AI_Charger : MonoBehaviour
 
         if (health <= 0)
         {
-            gameObject.SetActive(false);
+            gameObject.transform.position -= new Vector3(0, 50, 0);
+
+            if (!asCharger.isPlaying)
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 
@@ -126,6 +165,32 @@ public class AI_Charger : MonoBehaviour
         {
             //The enemy loses health
             health -= PlayerController3.slashDamage;
+
+            if (health > 0)
+            {
+                float rand = Random.value;
+
+                if (rand < 0.33f)
+                {
+                    asCharger.clip = hit1;
+                    asCharger.Play();
+                }
+                else if (rand > 0.66f)
+                {
+                    asCharger.clip = hit2;
+                    asCharger.Play();
+                }
+                else
+                {
+                    asCharger.clip = hit3;
+                    asCharger.Play();
+                }
+            }
+            else
+            {
+                asCharger.clip = death;
+                asCharger.Play();
+            }
 
             //The stun timer is set to start at 0, and the enemy is maked as hit
             stun = 0;
@@ -229,16 +294,16 @@ public class AI_Charger : MonoBehaviour
         {
             if (other.GetComponent<ParticleSystem>().emission.enabled)
             {
-                health -= Time.deltaTime / 4;
+                health -= Time.deltaTime / 2;
             } 
         }
     }
 
     private void OnParticleCollision(GameObject other)
     {
-        if (other.gameObject.tag == "steam" && gameObject.tag == "enemy") // Doesn't work?
+        if (other.gameObject.tag == "steam") 
         {
-            health -= 0.5f;
+            health -= 0.25f;
 
             GetComponent<MeshRenderer>().material.color = Color.magenta;
             hit = true;

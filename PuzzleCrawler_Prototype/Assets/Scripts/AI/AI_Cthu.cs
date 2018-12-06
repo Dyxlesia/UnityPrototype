@@ -7,6 +7,11 @@ public class AI_Cthu : MonoBehaviour {
     [SerializeField] GameObject player;
     [SerializeField] GameObject cam;
     [SerializeField] GameObject shot;
+    [SerializeField] float aggroTime;
+
+    [SerializeField] AudioSource teleport;
+    [SerializeField] AudioSource shoot;
+
 
     bool aggroed;
     float timer;
@@ -20,7 +25,7 @@ public class AI_Cthu : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate ()
     {
-        if (Timer.GlobalTimerValue > 100)
+        if (Timer.GlobalTimerValue > aggroTime || (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F)))
         {
             aggroed = true;
         }
@@ -30,7 +35,23 @@ public class AI_Cthu : MonoBehaviour {
         {
             if (Vector3.Distance(gameObject.transform.position, player.transform.position) > 20)
             {
-                gameObject.transform.position = new Vector3(player.transform.position.x, 2.5f, player.transform.position.z);
+                teleport.Play();
+
+                float rx = Random.Range(2, 5);
+                float rz = Random.Range(2, 5);
+
+                if (Random.value > 0.5f)
+                {
+                    rx *= -1;
+                }
+
+                if (Random.value > 0.5f)
+                {
+                    rz *= -1;
+                }
+
+
+                gameObject.transform.position = new Vector3(player.transform.position.x + rx, 2.5f, player.transform.position.z + rz);
             }
 
             //transform.parent = null;
@@ -47,7 +68,7 @@ public class AI_Cthu : MonoBehaviour {
 
                 GetComponent<Rigidbody>().velocity = 2 * new Vector3(randomNumberX, 0, randomNumberZ);
 
-                //
+                shoot.Play();
                 GameObject energyBall = Instantiate(shot, shot.transform.position, shot.transform.rotation, null);
                 energyBall.transform.LookAt(player.transform);
                 energyBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;

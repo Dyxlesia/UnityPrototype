@@ -36,23 +36,30 @@ public class TechCoil : MonoBehaviour {
 
         if (enemyToAttack != null)
         {
+            if (!GetComponent<AudioSource>().isPlaying)
+            {
+                GetComponent<AudioSource>().Play();
+            }
+
             transform.LookAt(enemyToAttack.transform);
             ParticleSystem ps = gameObject.GetComponent<ParticleSystem>();
 
             ParticleSystem.MainModule psmain = ps.main;
             psmain.startLifetime = Vector3.Distance(enemyToAttack.transform.position, gameObject.transform.position) / 10;
-            
+
             var em = ps.emission;
             em.enabled = true;
 
             if (Vector3.Distance(enemyToAttack.transform.position, gameObject.transform.position) > 10 || enemyToAttack.activeSelf == false)
             {
                 em.enabled = false;
+                GetComponent<AudioSource>().Stop();
                 closestDist = 10;
             }
         }
-
-
+        else
+        {
+            GetComponent<AudioSource>().Stop();
+        }
     }
-
 }

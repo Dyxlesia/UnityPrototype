@@ -19,7 +19,7 @@ public class ActivateTech : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if (Vector3.Distance(gameObject.transform.position, player.transform.position) < 3)
+        if (Vector3.Distance(gameObject.transform.position, player.transform.position) < 4)
         {
             if (Input.GetKey(KeyCode.Q) && toolType == PlayerController3.equipedTool)
             {

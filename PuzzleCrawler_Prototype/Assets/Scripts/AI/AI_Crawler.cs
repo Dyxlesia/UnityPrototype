@@ -12,7 +12,7 @@ public class AI_Crawler : MonoBehaviour {
     [SerializeField] float movespeed;
     [SerializeField] float knockback;       //The distance the enemy fets knocked back when you hit it
     [SerializeField] float stunTime;        //The time the enemy is stunned for
-    [SerializeField] float ignoreChance;    //The chance that the enemay ignores the player and follows it's path
+    [SerializeField] float ignorePercent;    //The chance that the enemay ignores the player and follows it's path
 
     [SerializeField] GameObject pointA;
     [SerializeField] GameObject pointB;
@@ -21,24 +21,35 @@ public class AI_Crawler : MonoBehaviour {
 
     [SerializeField] int pointTo;
 
+    [SerializeField] AudioSource asCrawler;
+    [SerializeField] AudioClip hit1;
+    [SerializeField] AudioClip hit2;
+    [SerializeField] AudioClip hit3;
+    [SerializeField] AudioClip death;
+
     Rigidbody ridbod;
 
     GameObject startRoom;
 
-    //float timer;
+    float timer;
     float randomNumber;
     float stun;                             //The timer used when the enemy is stuned
 
     bool hit;                               //Is the enemy hit/stunned?
     bool aggroed;                           //Has the enemy seen the player? AKA Has the player entered the same room as the enemy?
 
+    float randomDelay;
+    float ignoreChance;
+
     // Use this for initialization
     void Start()
     {
+        ignoreChance = 1;
+        randomDelay = Random.value;
         //pointTo = 1;
         ridbod = gameObject.GetComponent<Rigidbody>();
         //ridbod.useGravity = false;
-        //timer = 1;
+        timer = 0;
         randomNumber = Random.value;
         stun = 0;
         hit = false;
@@ -48,6 +59,15 @@ public class AI_Crawler : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (timer < randomDelay)
+        {
+            timer += Time.deltaTime;
+        }
+        else if (!gameObject.GetComponent<AudioSource>().isPlaying)
+        {
+            gameObject.GetComponent<AudioSource>().Play();
+        }    
+
         nearAggroPoint();
 
         if (!aggroed)
@@ -56,7 +76,7 @@ public class AI_Crawler : MonoBehaviour {
         }
         else
         {
-            ignoreChance = 0.8f;
+            ignoreChance = ignorePercent;
         }
         
 
@@ -141,7 +161,18 @@ public class AI_Crawler : MonoBehaviour {
 
         if (health <= 0)
         {
-            gameObject.SetActive(false);
+            if (!asCrawler.isPlaying)
+            {
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                gameObject.transform.position = new Vector3(gameObject.transform.position.x, -2, gameObject.transform.position.z);
+            }
+
+                
+
+
         }
     }
 
@@ -152,6 +183,32 @@ public class AI_Crawler : MonoBehaviour {
         {
             //The enemy loses health
             health -= PlayerController3.slashDamage;
+
+            if (health > 0)
+            {
+                float rand = Random.value;
+
+                if (rand < 0.33f)
+                {
+                    asCrawler.clip = hit1;
+                    asCrawler.Play();
+                }
+                else if (rand > 0.66f)
+                {
+                    asCrawler.clip = hit2;
+                    asCrawler.Play();
+                }
+                else
+                {
+                    asCrawler.clip = hit3;
+                    asCrawler.Play();
+                }
+            }
+            else
+            {
+                asCrawler.clip = death;
+                asCrawler.Play();
+            }
 
             //The stun timer is set to start at 0, and the enemy is maked as hit
             stun = 0;

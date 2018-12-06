@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController3 : MonoBehaviour {
 
@@ -13,7 +14,7 @@ public class PlayerController3 : MonoBehaviour {
     [SerializeField] GameObject stamina;    //The blue/green bar that decreases when you attack
     [SerializeField] GameObject fuel;       //The white bar that decreases when you dash
     [SerializeField] GameObject aggroPoint;
-
+    [SerializeField] GameObject redFlash;
     [SerializeField] float movespeed;       //How fast the player accelerates
     [SerializeField] float movespeedCap;    //The player's maximum speed. Assigned in the region velocityCapCode. Yes, this can cause bugs
     [SerializeField] float slowspeed;       //How fast the player decelerates
@@ -23,10 +24,12 @@ public class PlayerController3 : MonoBehaviour {
 
     [SerializeField] bool dashAtCursor;     //If true, the player will dash at the cursor. If false, the player will dash in the direction held
 
+    public PlaySound PlaySoundObj;
+
 
     public static string equipedTool;
     public static float slashDamage;        //Set to 1 in Start(). The amount of damage dealt by your attack (public static because AI and AI2 need acsess to this)
-    
+
     float slashTimer;                       //A timer used to determine how fast your attacks stay out
     float dropTimer;                        //A timer used to preventyou from falling through the world when pressing space on a pit
     float distToGround;                     //The distance from the center of the player to the floor
@@ -41,6 +44,10 @@ public class PlayerController3 : MonoBehaviour {
     bool dashing;                           //Is the player dashing or holding down the dash button?
     bool attacking;                         //Is the player attacking or holding down the attack button?
     bool tookDamage;                        //Did the player just take damage?
+
+    [SerializeField] Text winText;
+
+    //Color reddd;
 
     // Use this for initialization
     void Start()
@@ -64,11 +71,15 @@ public class PlayerController3 : MonoBehaviour {
         //The cursor is now invisible and in locked in the center of the screen
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        
+
+        //reddd = new Color(255, 255, 255, 100);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+
         //Regenerate stamina and fuel
         Regen(stamina, Color.green, Color.blue, 0.0075f);
         Regen(fuel, Color.white, Color.white, 0.0015f);
@@ -79,6 +90,12 @@ public class PlayerController3 : MonoBehaviour {
         #region tookDamageCode
         if (tookDamage)
         {
+            if (damageTimer == 0)
+            {
+                PlaySoundObj.playHitSound();
+                redFlash.GetComponent<Image>().color = new Color(1, 0, 0, 1);
+            }
+
             if (gameObject.GetComponent<MeshRenderer>().material.color == Color.blue)
             {
                 gameObject.GetComponent<MeshRenderer>().material.color = Color.white;
@@ -89,6 +106,9 @@ public class PlayerController3 : MonoBehaviour {
             }
 
             damageTimer += Time.deltaTime;
+
+            //reddd.a = 100 - (damageTimer * 100);
+            redFlash.GetComponent<Image>().color = new Color(1, 0, 0, 1 - damageTimer);
 
             if (damageTimer > invincibleTime)
             {
@@ -103,7 +123,7 @@ public class PlayerController3 : MonoBehaviour {
         #region faceCursorCode
 
         //The cursor cube's position is modified by the direction and speed of the mouse cursor, which is stuck at the center of the screen
-        cursorCube.transform.position += new Vector3(Input.GetAxis("Mouse X"), 0, Input.GetAxis("Mouse Y"));
+        cursorCube.transform.position += new Vector3(Input.GetAxis("Mouse X") * 0.75f, 0, Input.GetAxis("Mouse Y") * 0.75f);
 
         //The direction the player is supposed to face is assigned
         Vector3 lookDirection = new Vector3(cursorCube.transform.position.x, gameObject.transform.position.y, cursorCube.transform.position.z);
@@ -159,7 +179,7 @@ public class PlayerController3 : MonoBehaviour {
                 }
             }
         }
-
+    
         //Movement in the X direction. Velocity is added/subtracted to the current velocity
         if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
         {
@@ -203,7 +223,7 @@ public class PlayerController3 : MonoBehaviour {
                 }
             }
         }
-
+        
         #endregion
 
         //prevent the player form going faster than the designated speed. The movespeed cap is assigned in here, so if you are modifying that, you need to modify it here as well
@@ -232,11 +252,11 @@ public class PlayerController3 : MonoBehaviour {
         //Movement speed cap X
         if (vel.x > movespeedCap)
         {
-            vel.x -= slowspeed;
+            vel.x -= movespeed;
         }
         else if (vel.x < -movespeedCap)
         {
-            vel.x += slowspeed;
+            vel.x += movespeed;
         }
 
         #endregion
@@ -281,77 +301,72 @@ public class PlayerController3 : MonoBehaviour {
         {
             dashing = true;
 
+            PlaySoundObj.playDashSound();
+
             //decrease fuel by a bit in the x direction. Janky, but it works
             fuel.transform.position = new Vector3(fuel.transform.position.x - 0.1f, fuel.transform.position.y, fuel.transform.position.z);
 
-            if (dashAtCursor)
+            //some really cancererous code, but it lets you dash in the direction you hold
+            #region dashInDirection
+
+            //if moving up left
+            if ((pressingW && pressingA) && !(pressingW && pressingD) && !(pressingS && pressingA) && !(pressingS && pressingD))
             {
-                //you dash towards the cursor
+                vel = new Vector3(-dashStrength, 0, dashStrength);
+            }
+            //if moving up right
+            else if (!(pressingW && pressingA) && (pressingW && pressingD) && !(pressingS && pressingA) && !(pressingS && pressingD))
+            {
+                vel = new Vector3(dashStrength, 0, dashStrength);
+            }
+            //if moving down left
+            else if (!(pressingW && pressingA) && !(pressingW && pressingD) && (pressingS && pressingA) && !(pressingS && pressingD))
+            {
+                vel = new Vector3(-dashStrength, 0, -dashStrength);
+            }
+            //if moving down right
+            else if (!(pressingW && pressingA) && !(pressingW && pressingD) && !(pressingS && pressingA) && (pressingS && pressingD))
+            {
+                vel = new Vector3(dashStrength, 0, -dashStrength);
+            }
+            //if moving up
+            else if ((pressingW && !pressingA) && (!pressingS && !pressingD))
+            {
+                vel = new Vector3(0, 0, dashStrength);
+            }
+            //if moving left
+            else if ((!pressingW && pressingA) && (!pressingS && !pressingD))
+            {
+                vel = new Vector3(-dashStrength, 0, 0);
+            }
+            //if moving down
+            else if ((!pressingW && !pressingA) && (pressingS && !pressingD))
+            {
+                vel = new Vector3(0, 0, -dashStrength);
+            }
+            //if moving right
+            else if ((!pressingW && !pressingA) && (!pressingS && pressingD))
+            {
+                vel = new Vector3(dashStrength, 0, 0);
+            }
+            else
+            {
+                //vel = new Vector3(vel.x, jumpVel, vel.z);
                 #region dashTowardsCursor
 
                 //Quaternion bullshit. Velocity is applied in the direction you are facing, which is towards the cursorCube
-                vel = gameObject.transform.localRotation * new Vector3(0, 0, dashStrength);
+                vel = gameObject.transform.localRotation * new Vector3(0, 0, dashStrength * 1.4f);
 
                 //If you are pressing shift while dashing, you do a back dash
                 if (Input.GetKey(KeyCode.LeftShift))
                 {
-                    vel = gameObject.transform.localRotation * new Vector3(0, 0, -dashStrength);
+                    vel = gameObject.transform.localRotation * new Vector3(0, 0, -dashStrength * 1.4f);
                 }
 
                 #endregion
             }
-            else if (!dashAtCursor)
-            {
-                //some really cancererous code, but it lets you dash in the direction you hold
-                #region dashInDirection
 
-                //if moving up left
-                if ((pressingW && pressingA) && !(pressingW && pressingD) && !(pressingS && pressingA) && !(pressingS && pressingD))
-                {
-                    vel = new Vector3(-dashStrength, 0, dashStrength);
-                }
-                //if moving up right
-                else if (!(pressingW && pressingA) && (pressingW && pressingD) && !(pressingS && pressingA) && !(pressingS && pressingD))
-                {
-                    vel = new Vector3(dashStrength, 0, dashStrength);
-                }
-                //if moving down left
-                else if (!(pressingW && pressingA) && !(pressingW && pressingD) && (pressingS && pressingA) && !(pressingS && pressingD))
-                {
-                    vel = new Vector3(-dashStrength, 0, -dashStrength);
-                }
-                //if moving down right
-                else if (!(pressingW && pressingA) && !(pressingW && pressingD) && !(pressingS && pressingA) && (pressingS && pressingD))
-                {
-                    vel = new Vector3(dashStrength, 0, -dashStrength);
-                }
-                //if moving up
-                else if ((pressingW && !pressingA) && (!pressingS && !pressingD))
-                {
-                    vel = new Vector3(0, 0, dashStrength);
-                }
-                //if moving left
-                else if ((!pressingW && pressingA) && (!pressingS && !pressingD))
-                {
-                    vel = new Vector3(-dashStrength, 0, 0);
-                }
-                //if moving down
-                else if ((!pressingW && !pressingA) && (pressingS && !pressingD))
-                {
-                    vel = new Vector3(0, 0, -dashStrength);
-                }
-                //if moving right
-                else if ((!pressingW && !pressingA) && (!pressingS && pressingD))
-                {
-                    vel = new Vector3(dashStrength, 0, 0);
-                }
-                else
-                {
-                    //vel = new Vector3(vel.x, jumpVel, vel.z);
-                }
-
-                #endregion
-            }
+            #endregion
         }
         else if (!Input.GetMouseButton(1))
         {
@@ -396,15 +411,18 @@ public class PlayerController3 : MonoBehaviour {
                 if (equipedTool == "wrench")
                 {
                     slash.transform.localScale = new Vector3(1.9f, 3f, 1.9f);
+                    PlaySoundObj.playAttackSound("wrench");
                 }
                 else if (equipedTool == "screwdriver")
                 {
                     slash.transform.localScale = new Vector3(1.7f, 3.2f, 1.7f);
+                    PlaySoundObj.playAttackSound("screwdriver");
                 }
                 else if (equipedTool == "hammer")
                 {
                     slash.transform.localScale = new Vector3(6, 6, 6);
                     slashDamage = 1.5f;
+                    PlaySoundObj.playAttackSound("hammer");
                 }
             }
             else
@@ -415,15 +433,18 @@ public class PlayerController3 : MonoBehaviour {
                 if (equipedTool == "wrench")
                 {
                     slash.transform.localScale = new Vector3(1.5f, 2.5f, 1.5f);
+                    PlaySoundObj.playAttackSound("wrench");
                 }
                 else if (equipedTool == "screwdriver")
                 {
                     slash.transform.localScale = new Vector3(1.5f, 2.2f, 1.5f);
+                    PlaySoundObj.playAttackSound("screwdriver");
                 }
                 else if (equipedTool == "hammer")
                 {
                     slash.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                     slashDamage = 0.5f;
+                    PlaySoundObj.playAttackSound("hammer");
                 }
             }
 
@@ -522,9 +543,12 @@ public class PlayerController3 : MonoBehaviour {
 
         if (other.tag == "item")
         {
+            other.GetComponent<AudioSource>().Play();
+
             if (other.GetComponent<ItemData>().item == "health")
             {
                 Health.playerHealth = 5;
+                other.gameObject.transform.position = new Vector3(other.gameObject.transform.position.x, -5, other.gameObject.transform.position.z);
             }
             else
             {
@@ -550,18 +574,23 @@ public class PlayerController3 : MonoBehaviour {
 
         if (other.gameObject.tag == "smashDoor" && other.gameObject.GetComponent<MeshRenderer>().material.color == Color.red)
         {
-            Health.playerHealth = 0;
+            Health.playerHealth--;
+            tookDamage = true;
+        }
+
+        if (other.gameObject.tag == "ladder")
+        {
+            winText.color = Color.green;
+            winText.text = "Congrats! Press R to reload.";
+            
+            gameObject.SetActive(false);
+            cam.GetComponent<AudioListener>().enabled = true;
         }
     }
 
     //if you leave a hit box, things return to normal
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "ladder")
-        {
-            jumpVel = 5;
-        }
-
         if (other.gameObject.tag == "pit")
         {
             overPit = false;

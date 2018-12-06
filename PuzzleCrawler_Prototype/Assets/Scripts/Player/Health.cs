@@ -1,15 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Health : MonoBehaviour {
 
     public static float playerHealth;
+    [SerializeField] GameObject cam;
     [SerializeField] GameObject hp1;
     [SerializeField] GameObject hp2;
     [SerializeField] GameObject hp3;
     [SerializeField] GameObject hp4;
     [SerializeField] GameObject hp5;
+    [SerializeField] Text text;
 
     // Use this for initialization
     void Start () {
@@ -72,9 +75,11 @@ public class Health : MonoBehaviour {
         }
         else if (playerHealth <= 0)
         {
-            //hp1.SetActive(false);
-            //gameObject.SetActive(false);
+            hp1.SetActive(false);
+            cam.GetComponent<AudioListener>().enabled = true;
+            gameObject.SetActive(false);
             playerHealth = 5;
+            text.text = "Press R to reload";
         }
 
         

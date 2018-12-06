@@ -21,6 +21,17 @@ public class AI_Wizard : MonoBehaviour {
     [SerializeField] float teleportDist;
     [SerializeField] float shotSpeed;
 
+    [SerializeField] AudioSource asShadowball;
+    [SerializeField] AudioSource asCurse;
+    [SerializeField] AudioSource asTeleport;
+    [SerializeField] AudioClip buildup;
+    [SerializeField] AudioClip warp;
+    [SerializeField] AudioSource asWizard;
+    [SerializeField] AudioClip hit1;
+    [SerializeField] AudioClip hit2;
+    [SerializeField] AudioClip hit3;
+    [SerializeField] AudioClip death;
+
     Rigidbody ridbod;
 
     GameObject startRoom;
@@ -117,6 +128,11 @@ public class AI_Wizard : MonoBehaviour {
 
         if (!playerCursed)
         {
+            if (!asCurse.isPlaying)
+            {
+                asCurse.Play();
+            }
+
             if (timer > 0.5f && timer <= 1)
             {
                 orb.transform.position = new Vector3(orbstartpos.x, Mathf.Lerp(orb.transform.position.y, orbstartpos.y + 2, 0.2f), orbstartpos.z);
@@ -145,7 +161,14 @@ public class AI_Wizard : MonoBehaviour {
 
             if (timer > 3 && timer <= 3.5f)
             {
-                shot.transform.position = gameObject.transform.position;
+                asShadowball.volume = ((aggroPoint.GetComponent<AudioSource>().volume * 1.42f) * 0.5f);
+                if (Vector3.Distance(aggroPoint.transform.position, gameObject.transform.position) < 20)
+                {
+                    asShadowball.Play();
+                }
+                    
+
+                shot.transform.position = gameObject.transform.position + new Vector3(0, 1.5f, 0);
                 shot.GetComponent<Rigidbody>().velocity = shot.transform.rotation * new Vector3(0, 0, shotSpeed);
                 shot.transform.parent = null;
                 shot.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
@@ -153,10 +176,21 @@ public class AI_Wizard : MonoBehaviour {
             
         }
 
+        if (timer >= 5 - buildup.length && !asTeleport.isPlaying)
+        {
+            asTeleport.clip = buildup;
+            asTeleport.volume = ((aggroPoint.GetComponent<AudioSource>().volume * 1.42f) * 0.5f);
+            if (Vector3.Distance(aggroPoint.transform.position, gameObject.transform.position) < 20)
+            {
+                asTeleport.Play();
+            }
+                
+        }
+
         if (timer >= 5)
         { 
             teleport();
-            shot.transform.position = gameObject.transform.position;
+            shot.transform.position = gameObject.transform.position + new Vector3(0, 1.5f, 0);
             shot.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
             shot.transform.parent = gameObject.transform;
             shot.transform.localScale = new Vector3(0.95f, 0.95f, 0.95f);
@@ -166,9 +200,14 @@ public class AI_Wizard : MonoBehaviour {
 
         if (health <= 0)
         {
-            gameObject.SetActive(false);
             orb.SetActive(false);
             playerCursed = false;
+
+            if (!asWizard.isPlaying)
+            {
+                gameObject.SetActive(false);
+            }
+
         }
     }
 
@@ -179,6 +218,32 @@ public class AI_Wizard : MonoBehaviour {
         {
             //The enemy loses health
             health -= PlayerController3.slashDamage;
+
+            if (health > 0)
+            {
+                float rand = Random.value;
+
+                if (rand < 0.33f)
+                {
+                    asWizard.clip = hit1;
+                    asWizard.Play();
+                }
+                else if (rand > 0.66f)
+                {
+                    asWizard.clip = hit2;
+                    asWizard.Play();
+                }
+                else
+                {
+                    asWizard.clip = hit3;
+                    asWizard.Play();
+                }
+            }
+            else
+            {
+                asWizard.clip = death;
+                asWizard.Play();
+            }
 
             //The stun timer is set to start at 0, and the enemy is maked as hit
             stun = 0;
@@ -281,7 +346,7 @@ public class AI_Wizard : MonoBehaviour {
         {
             if (other.GetComponent<ParticleSystem>().emission.enabled)
             {
-                health -= Time.deltaTime / 4;
+                health -= Time.deltaTime / 2;
             }
         }
     }
@@ -318,6 +383,15 @@ public class AI_Wizard : MonoBehaviour {
 
     private void teleport()
     {
+        asTeleport.clip = warp;
+
+        asTeleport.volume = ((aggroPoint.GetComponent<AudioSource>().volume * 1.42f) * 0.5f);
+        if (Vector3.Distance(aggroPoint.transform.position, gameObject.transform.position) < 20)
+        {
+            asTeleport.Play();
+        }
+            
+
         float randx = Random.Range(-teleportDist, teleportDist);
         float randz = Random.Range(-teleportDist, teleportDist);
 
